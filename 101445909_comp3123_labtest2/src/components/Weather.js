@@ -1,62 +1,70 @@
-import React, { useEffect, useState } from 'react'
-import { Row, Col, Container, Button, Form } from 'react-bootstrap'
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Container } from 'react-bootstrap';
 import '../styles/Weather.css';
 
 export default function Weather() {
-    const [currentWeather, setCurrentWeather] = useState(null) 
-    const [forecast, setForecast] = useState(null)  
-    const [city, setCity] = useState("Kingston")
-    const [error, setError] = useState("")  
-    const [searchTerm, setSearchTerm] = useState("") 
+    const [currentWeather, setCurrentWeather] = useState(null); 
+    const [forecast, setForecast] = useState(null); 
+    const [searchInput, setSearchInput] = useState(""); 
+    const [city, setCity] = useState("Toronto"); 
+    const [error, setError] = useState(""); 
 
-    const API_KEY = "5bc651908c8e7c8e54c17e9b2732c7d7"
-    const CURRENT_WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-    const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`
+    const API_KEY = "5bc651908c8e7c8e54c17e9b2732c7d7";
+    const CURRENT_WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+    const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
 
     useEffect(() => {
-        // Fetch current weather data and forecast when city or state changes
+    
         const fetchData = async () => {
             try {
-                const weatherResponse = await fetch(CURRENT_WEATHER_URL)
-                const weatherData = await weatherResponse.json()
+                // Fetch current weather
+                const weatherResponse = await fetch(CURRENT_WEATHER_URL);
+                const weatherData = await weatherResponse.json();
 
                 if (weatherResponse.ok) {
-                    setCurrentWeather(weatherData) 
+                    setCurrentWeather(weatherData); // Set current weather
                 } else {
-                    setError("Error fetching weather data")
+                    setError("Error fetching weather data");
                 }
 
-                const forecastResponse = await fetch(FORECAST_URL)
-                const forecastData = await forecastResponse.json()
+                // Fetch forecast data
+                const forecastResponse = await fetch(FORECAST_URL);
+                const forecastData = await forecastResponse.json();
 
                 if (forecastResponse.ok) {
-                    setForecast(forecastData) 
+                    setForecast(forecastData); // Set forecast data
                 } else {
-                    setError("Error fetching forecast data")
+                    setError("Error fetching forecast data");
                 }
 
             } catch (error) {
-                setError(error.message) 
+                setError(error.message); // Catch any errors in fetching
             }
-        }
+        };
 
-        fetchData()
-    }, [city])  
+        fetchData();
+    }, [city]); // Re-run whenever the city changes
 
-    // Handle the search input and trigger city change
-    const handleSearch = () => {
-        if (searchTerm.trim()) {
-            setCity(searchTerm)  // Update city state
-            setSearchTerm("") // Reset the search bar
+    const handleSearchChange = (e) => {
+        setSearchInput(e.target.value); 
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault(); // Prevents default form submission
+        if (searchInput.trim()) {
+            setCity(searchInput); // Only update city when the button is clicked
+            setError(""); // Clear previous error if any
+        } else {
+            setError("Please enter a valid city name.");
         }
-    }
+    };
 
     if (error) {
         return (
             <Container>
                 <h1>Error: {error}</h1>
             </Container>
-        )
+        );
     }
 
     if (!currentWeather) {
@@ -64,63 +72,66 @@ export default function Weather() {
             <Container>
                 <h1>Loading...</h1>
             </Container>
-        )
+        );
     }
 
     return (
-        <Container className={["weatherApp", currentWeather.main.temp <= 0 ? "cold-weather" : "hot-weather"]}>
-            {/* Search Bar */}
-            <Row className="mt-3 text-center">
-                <Col>
-                    <Form.Control
-                        type="text"
-                        placeholder="Enter city name"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)} 
-                    />
-                    <Button variant="primary" onClick={handleSearch} className="mt-2">
-                        Search
-                    </Button>
-                </Col>
-            </Row>
-
-            {/* Current Weather */}
+        <Container className="weather-container">
             <Row className="mt-3 text-center">
                 <h3>{city} - {currentWeather.sys.country}</h3>
+
+                <form onSubmit={handleSearchSubmit} className="search-bar">
+                    <input
+                        type="text"
+                        placeholder="Enter city name"
+                        value={searchInput} 
+                        onChange={handleSearchChange} 
+                    />
+                    <button type="submit">Search</button>
+                </form>
+            </Row>
+
+            <Row className="mt-3 text-center">
                 <Col>
-                    <img src={`http://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@4x.png`} alt={currentWeather.weather[0].main} />
+                    <img
+                        src={`http://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@4x.png`}
+                        alt={currentWeather.weather[0].main}
+                    />
                     <h1>{currentWeather.main.temp} °C</h1>
                     <h2>{currentWeather.weather[0].main}</h2>
                     <h3>{currentWeather.weather[0].description}</h3>
                 </Col>
-            </Row>
-            <Row className="mt-3 text-center">
+
                 <Col>
                     <h4>Wind:</h4>
                     <p>Speed: {currentWeather.wind.speed} km/h</p>
                     <p>Deg: {currentWeather.wind.deg} °</p>
-                </Col>
-                <Col>
+
                     <h4>Clouds:</h4>
                     <p>All: {currentWeather.clouds.all}</p>
                 </Col>
             </Row>
 
-            {/* Display forecast if it's available */}
+         
             {forecast && (
                 <Row className="mt-3">
                     <Col>
-                        <h4>Forecast:</h4>
-                        <ul>
-                            {forecast.list.slice(0, 5).map((day, index) => (
-                                <li key={index}>
-                                    {new Date(day.dt * 1000).toLocaleDateString()} - {day.main.temp} °C
-                                </li>
+                        <h4>7-Day Forecast:</h4>
+                        <div className="forecast">
+                            {forecast.list.slice(0, 7).map((day, index) => (
+                                <div className="forecast-item" key={index}>
+                                    <h5>{new Date(day.dt * 1000).toLocaleDateString()}</h5>
+                                    <p>{day.main.temp} °C</p>
+                                    <img
+                                        src={`http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
+                                        alt={day.weather[0].description}
+                                    />
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </Col>
                 </Row>
             )}
         </Container>
-    )
+    );
 }
