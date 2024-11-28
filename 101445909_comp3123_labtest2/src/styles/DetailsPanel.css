@@ -1,0 +1,25 @@
+.details-panel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.detail-item {
+    width: 48%;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1rem;
+    color: #ddd;
+}
+
+.detail-item span {
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: block;
+    color: #fff;
+}
