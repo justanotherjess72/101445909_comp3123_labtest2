@@ -18,6 +18,7 @@ body {
   text-shadow: 0px 1px 5px rgba(0, 0, 0, 0.7);
 }
 
+/* Search Bar */ 
 .search-bar {
   width: 80%; 
   margin-top: 20px; 
@@ -47,6 +48,8 @@ body {
   background-color: #2980b9;
 }
 
+
+/* Weather Main Container*/
 .weather-container {
   display: flex;
   width: 80%;
@@ -70,6 +73,7 @@ body {
   margin-top: 20px;
 }
 
+/* 7 Day Forecast Containers */
 .forecast {
   display: flex;
   justify-content: space-between;
